@@ -1,2 +1,31 @@
-# DUB-SIREN
-A browser dub siren with air horn, spring thunder, tape-style delay, and mix recording.
+# DUB SIREN
+
+A browser instrument for dub-style sound effects and live mix recording.  
+曲を流しながら、ダブサイレン、エアホーン、スプリングの破裂音を重ねて録音するブラウザー楽器です。
+
+[Play DUB SIREN v0.2.4](https://dub-siren.sunny-seed-0354.chatgpt.site/)
+
+## Play
+
+- **SIREN** — Hold FIRE and slide vertically for pitch or horizontally for modulation speed. Space also triggers FIRE on a keyboard.
+- **AIR HORN** — Tap FIRE for a short horn hit. Tap repeatedly to play a rhythm.
+- **THUNDER** — Tap FIRE for a sharp spring-reverb crash. The hit position controls its pitch and brightness.
+- **TAPE DELAY** — Adjust the delay time, feedback and amount. Use the stop button to cut the tail.
+- **MUSIC & REC** — Select a local audio file, play it, and record the mix. Preview the take and save it in the format available in your browser.
+
+The app plays and mixes your selected file in the browser. The recording is generated locally and saved when you download it.
+
+## Run locally
+
+From the repository root, run `python3 -m http.server 8000` and open [http://localhost:8000](http://localhost:8000). Keep both WAV files beside `index.html`.
+
+## Audio credits
+
+| Asset | Source | License | Edits |
+| --- | --- | --- | --- |
+| `air-horn.wav` | [air horn — the_mred](https://freesound.org/people/the_mred/sounds/741817/) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | Trimmed to a short hit and faded. |
+| `thunder.wav` | [Spring tank reverb crashing noise.wav — Solar01](https://freesound.org/people/Solar01/sounds/662099/) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | A single impact was edited for a sharp attack and a more audible spring tail. |
+
+THUNDER takes its cue from the spring-reverb crashes in King Tubby's “A Noisy Place,” the dub of Horace Andy's “Quiet Place.”
+
+Design by Masato Nasu.

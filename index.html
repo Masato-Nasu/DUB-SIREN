@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#161715">
+<title>DUB SIREN</title>
+<meta name="description" content="指でピッチを操るダブサイレン。テープ風ディレイ付き。">
+<link rel="preload" href="./air-horn.wav" as="fetch" crossorigin>
+<style>
+:root{color-scheme:dark;--ink:#161715;--paper:#eae7da;--muted:#afad9e;--accent:#ff7b48;--line:#464741;--panel:#222420}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--paper);font:14px/1.55 Helvetica,Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+main{max-width:810px;margin:auto;padding:clamp(21px,5vw,52px) clamp(14px,4vw,33px) 32px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-bottom:15px;border-bottom:1px solid var(--line);margin-bottom:15px}
+.eyebrow,.label,.version,.output,.status,.axis,.wave,.kill{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;letter-spacing:.10em}
+.eyebrow{font-size:10px;color:var(--accent);margin:0 0 5px}
+h1{font-size:clamp(40px,9vw,84px);line-height:.9;letter-spacing:-.065em;margin:0;font-weight:800;white-space:nowrap}
+.version{font-size:10px;color:var(--muted);white-space:nowrap}
+.scope{height:92px;border:1px solid var(--line);border-radius:5px;background:#10110f;position:relative;overflow:hidden;margin:0 0 13px}
+.scope canvas{width:100%;height:100%;display:block}
+.scope-head{position:absolute;inset:9px 11px auto;display:flex;justify-content:space-between;font:10px ui-monospace,monospace;letter-spacing:.11em;color:var(--muted);pointer-events:none}
+#lamp{display:inline-block;width:6px;height:6px;border-radius:50%;background:#747468;margin:0 6px 1px 0}
+.scope.on #lamp{background:var(--accent);box-shadow:0 0 9px var(--accent)}
+.pad{position:relative;display:grid;place-content:center;text-align:center;width:100%;height:clamp(171px,30vw,242px);padding:27px;border:1px solid #fb9c70;border-radius:6px;color:#24170e;background-color:var(--accent);background-image:linear-gradient(to right,#23171020 1px,transparent 1px),linear-gradient(to bottom,#23171020 1px,transparent 1px);background-size:12.5% 25%;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden;isolation:isolate}
+.pad.active{background-color:#ffa271}
+.pad-title{font-size:clamp(35px,8vw,60px);font-weight:800;line-height:.95;letter-spacing:-.055em}
+.pad-note{margin-top:10px;font-size:12px;font-weight:700}
+.axis{position:absolute;font-size:10px;line-height:1}
+.axis-x{right:10px;bottom:10px}
+.axis-y{left:10px;top:11px}
+.target{display:none;position:absolute;width:33px;height:33px;border:1px solid #27170d;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:-1}
+.active .target{display:block}
+.target::before,.target::after{content:"";background:#27170d;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.target::before{width:45px;height:1px}.target::after{height:45px;width:1px}
+.hint{color:var(--muted);margin:8px 0 14px;font-size:11px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.module{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:13px}
+.module h2{display:flex;align-items:baseline;gap:8px;color:var(--paper);font-size:12px;line-height:1.2;margin:0 0 10px}
+.module h2 span{font:10px ui-monospace,monospace;color:var(--accent)}
+.waves{display:flex;gap:4px;margin-bottom:9px}
+.wave,.kill{min-height:34px;color:var(--paper);background:#181a17;border:1px solid #5a5a4e;border-radius:3px;font-size:10px}
+.wave{flex:1;padding:0 4px}
+.wave[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.kill{padding:0 11px;letter-spacing:.06em}
+.kill:hover,.wave:hover{border-color:var(--accent)}
+.slider{display:grid;grid-template-columns:minmax(70px,.8fr) minmax(36px,1.1fr) 61px;gap:7px;align-items:center;min-height:35px}
+.label,.output{font-size:10px}
+.output{text-align:right;color:var(--accent);white-space:nowrap;letter-spacing:0}
+input[type="range"]{width:100%;height:30px;margin:0;accent-color:var(--accent);cursor:pointer}
+footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px}
+footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 34px}
+.status{font-size:10px;color:var(--muted)}
+.modes{display:flex;gap:5px;margin-bottom:8px}
+.modes .wave{flex:0 1 118px;min-height:32px}
+.modes .wave[aria-pressed="true"]{background:#38251d;color:var(--accent);border-color:var(--accent)}
+.mixer{margin-bottom:12px}
+.transport,.record-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.transport .kill,.record-row .kill{min-height:38px}
+.transport .kill:disabled,.record-row .kill:disabled{opacity:.5;cursor:default}
+.track-file{flex:1 1 150px;width:0;min-width:0;max-width:290px;min-height:38px;color:var(--muted);font-size:11px}
+.track-file::file-selector-button{min-height:38px;margin-right:9px;padding:0 11px;border:1px solid #5a5a4e;border-radius:3px;color:var(--paper);background:#181a17;font:inherit;cursor:pointer}
+.track-file::file-selector-button:hover{border-color:var(--accent)}
+.track-name,.file-help{margin:6px 0 0;color:var(--muted);font-size:11px}
+.file-help summary{width:fit-content;cursor:pointer}
+.file-help p{margin:4px 0 0}
+.seek{display:grid;grid-template-columns:minmax(0,1fr) 93px;gap:8px;align-items:center;margin-top:5px}
+.track-volume{max-width:305px}
+.record-row{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}
+.record-button{color:var(--accent)}
+.record-button.recording{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.take{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.take[hidden]{display:none}
+.take audio{max-width:100%;height:37px}
+.take a{display:inline-flex;align-items:center;text-decoration:none}
+@media(max-width:560px){.controls{grid-template-columns:1fr;gap:8px}.scope{height:70px}.module{padding:10px 12px}.module h2{margin-bottom:7px}.wave,.kill{min-height:38px}.slider{min-height:30px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div><p class="eyebrow">SOUND SYSTEM INSTRUMENT</p><h1>DUB SIREN</h1></div>
+    <span class="version">V0.2.4</span>
+  </header>
+  <div class="scope" id="scope">
+    <canvas id="trace" aria-hidden="true"></canvas>
+    <div class="scope-head"><span>OUTPUT MONITOR</span><span><i id="lamp"></i><span id="monitor">STANDBY</span></span></div>
+  </div>
+  <div class="modes" role="group" aria-label="効果音">
+    <button type="button" class="wave" data-mode="siren" aria-pressed="true">SIREN</button>
+    <button type="button" class="wave" data-mode="horn" aria-pressed="false">AIR HORN</button>
+    <button type="button" class="wave" data-mode="thunder" aria-pressed="false">THUNDER</button>
+  </div>
+  <button class="pad" id="pad" type="button" aria-describedby="hint">
+    <span class="axis axis-y" id="axis-y">↕ PITCH</span>
+    <span class="pad-title">FIRE</span>
+    <span class="pad-note" id="pad-note">押して鳴らす</span>
+    <span class="axis axis-x" id="axis-x">MODULATION ↔</span>
+    <span class="target" id="target" aria-hidden="true"></span>
+  </button>
+  <p class="hint" id="hint">上下で音程、左右で揺れの速さ。離すと残響が続きます。PCは Space でも演奏できます。</p>
+  <section class="module mixer" aria-labelledby="mixer-title">
+    <h2 id="mixer-title"><span>01</span> MUSIC &amp; REC</h2>
+    <div class="transport">
+      <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" aria-describedby="track-name">
+      <button type="button" class="kill" id="track-play" disabled>▶ 再生</button>
+    </div>
+    <p class="track-name" id="track-name" role="status">端末に保存したMP3やWAVを選べます。</p>
+    <details class="file-help"><summary>ファイル選択が開かないとき</summary><p>ChatGPTアプリ内で開いている場合は、このページをChromeで開いて曲を選んでください。</p></details>
+    <audio id="track" preload="metadata" hidden></audio>
+    <div class="seek">
+      <input type="range" id="track-seek" min="0" max="1" step="0.1" value="0" aria-label="曲の再生位置" disabled>
+      <output class="output" id="track-time">0:00 / 0:00</output>
+    </div>
+    <label class="slider track-volume"><span class="label">曲の音量</span><input id="track-volume" type="range" min="0" max="100" value="67"><output class="output" for="track-volume" id="track-volume-out">67%</output></label>
+    <div class="record-row">
+      <button type="button" class="kill record-button" id="record">● 録音開始</button>
+      <output class="output" id="record-time">0:00</output>
+      <span class="status" id="record-status" role="status">曲と効果音をミックスして録音</span>
+    </div>
+    <div class="take" id="take" hidden>
+      <audio id="take-audio" controls preload="metadata" aria-label="録音の試聴"></audio>
+      <a class="kill" id="take-save">録音を保存</a>
+    </div>
+  </section>
+  <section class="controls" aria-label="音色とディレイ">
+    <div class="module">
+      <h2><span>02</span> OSCILLATOR</h2>
+      <div class="waves" role="group" aria-label="波形">
+        <button type="button" class="wave" data-wave="sine" aria-pressed="false">SINE</button>
+        <button type="button" class="wave" data-wave="triangle" aria-pressed="false">TRIANGLE</button>
+        <button type="button" class="wave" data-wave="square" aria-pressed="true">SQUARE</button>
+      </div>
+      <label class="slider"><span class="label">揺れの深さ</span><input id="depth" type="range" min="0" max="100" value="53"><output class="output" for="depth" id="depth-out">53%</output></label>
+    </div>
+    <div class="module">
+      <h2><span>03</span> TAPE DELAY</h2>
+      <label class="slider"><span class="label">間隔</span><input id="time" type="range" min="85" max="950" step="5" value="365"><output class="output" for="time" id="time-out">365 ms</output></label>
+      <label class="slider"><span class="label">繰り返し</span><input id="feedback" type="range" min="0" max="86" value="57"><output class="output" for="feedback" id="feedback-out">57%</output></label>
+      <label class="slider"><span class="label">ディレイ量</span><input id="echo" type="range" min="0" max="100" value="58"><output class="output" for="echo" id="echo-out">58%</output></label>
+    </div>
+  </section>
+  <footer>
+    <label class="slider"><span class="label">効果音量</span><input id="volume" type="range" min="0" max="100" value="42"><output class="output" for="volume" id="volume-out">42%</output></label>
+    <button class="kill" id="kill" type="button">■ 残響を止める</button>
+  </footer>
+  <p class="status" id="status" role="status" hidden></p>
+</main>
+<script>
+"use strict";
+const byId = id => document.getElementById(id);
+const pad = byId("pad");
+const scope = byId("scope");
+const monitor = byId("monitor");
+const target = byId("target");
+const music = byId("track");
+const hits = new Set();
+const knobs = Object.fromEntries(["depth", "time", "feedback", "echo", "volume"].map(id => [id, byId(id)]));
+const level = id => Number(knobs[id].value) / 100;
+let audio;
+let gesture;
+let voice;
+let wave = "square";
+let mode = "siren";
+let stopGeneration = 0;
+
+function adjust(param, value, speed = 0.018) {
+  param.setTargetAtTime(value, audio.context.currentTime, speed);
+}
+
+function makeEcho() {
+  const { context, input, limiter } = audio;
+  const delay = context.createDelay(2);
+  const tone = context.createBiquadFilter();
+  const feedback = context.createGain();
+  const wet = context.createGain();
+  delay.delayTime.value = Number(knobs.time.value) / 1000;
+  tone.type = "lowpass";
+  tone.frequency.value = 2200;
+  feedback.gain.value = level("feedback");
+  wet.gain.value = level("echo") * 0.72;
+  input.connect(delay).connect(tone);
+  tone.connect(feedback).connect(delay);
+  tone.connect(wet).connect(limiter);
+  audio.echo = { delay, tone, feedback, wet };
+}
+
+async function unlock() {
+  if (!audio) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) throw new Error("Web Audio is unavailable");
+    const context = new AudioContextClass();
+    const input = context.createGain();
+    const limiter = context.createDynamicsCompressor();
+    const volume = context.createGain();
+    const trackGain = context.createGain();
+    const master = context.createDynamicsCompressor();
+    const masterGain = context.createGain();
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 1024;
+    limiter.threshold.value = -12;
+    limiter.ratio.value = 12;
+    volume.gain.value = level("volume") * 0.68;
+    trackGain.gain.value = Number(byId("track-volume").value) / 100;
+    master.threshold.value = -6;
+    master.ratio.value = 8;
+    masterGain.gain.value = 0.85;
+    input.connect(limiter).connect(volume).connect(master);
+    context.createMediaElementSource(music).connect(trackGain).connect(master);
+    master.connect(masterGain).connect(analyser).connect(context.destination);
+    audio = { context, input, limiter, volume, trackGain, masterGain, analyser, samples: new Float32Array(analyser.fftSize) };
+    makeEcho();
+  }
+  return audio.context.state === "running" ? Promise.resolve() : audio.context.resume();
+}
+
+function position(event) {
+  const box = pad.getBoundingClientRect();
+  const clamp = value => Math.min(1, Math.max(0, value));
+  return { x: clamp((event.clientX - box.left) / box.width), y: clamp((event.clientY - box.top) / box.height) };
+}
+
+function move(point) {
+  target.style.left = (point.x * 100) + "%";
+  target.style.top = (point.y * 100) + "%";
+  if (!voice) return;
+  adjust(voice.osc.frequency, 125 * Math.pow(8, 1 - point.y));
+  adjust(voice.lfo.frequency, 0.55 * Math.pow(22, point.x));
+}
+
+function makeSiren(point) {
+  const { context, input } = audio;
+  const osc = context.createOscillator();
+  const lfo = context.createOscillator();
+  const depth = context.createGain();
+  const envelope = context.createGain();
+  osc.type = wave;
+  osc.frequency.value = 125 * Math.pow(8, 1 - point.y);
+  lfo.type = "triangle";
+  lfo.frequency.value = 0.55 * Math.pow(22, point.x);
+  depth.gain.value = level("depth") * 1150;
+  envelope.gain.value = 0;
+  lfo.connect(depth).connect(osc.detune);
+  osc.connect(envelope).connect(input);
+  adjust(envelope.gain, wave === "square" ? 0.36 : 0.46, 0.012);
+  lfo.start();
+  osc.start();
+  return { osc, lfo, depth, envelope };
+}
+
+async function fireHorn(point, generation) {
+  // "air horn" by the_mred, CC0. https://freesound.org/people/the_mred/sounds/741817/
+  audio.horn ??= fetch("./air-horn.wav")
+    .then(response => {
+      if (!response.ok) throw new Error("Air horn sample unavailable");
+      return response.arrayBuffer();
+    })
+    .then(bytes => audio.context.decodeAudioData(bytes))
+    .catch(error => {
+      audio.horn = undefined;
+      throw error;
+    });
+  const buffer = await audio.horn;
+  if (generation !== stopGeneration || document.hidden) return;
+  playHit(buffer, 1.06 - point.y * 0.12, 3200 + point.x * 6800, 1);
+}
+
+let thunderBuffer;
+let thunderLoad;
+
+function prepareThunder() {
+  // "Spring tank reverb crashing noise.wav" by Solar01, CC0.
+  // https://freesound.org/people/Solar01/sounds/662099/
+  thunderLoad ??= fetch("./thunder.wav?v=2")
+    .then(response => {
+      if (!response.ok) throw new Error("Thunder sample unavailable");
+      return response.arrayBuffer();
+    })
+    .then(bytes => {
+      const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      const decoder = audio?.context ?? new OfflineContext(1, 1, 32000);
+      return decoder.decodeAudioData(bytes);
+    })
+    .then(buffer => { thunderBuffer = buffer; return buffer; })
+    .catch(error => {
+      thunderLoad = undefined;
+      throw error;
+    });
+  return thunderLoad;
+}
+
+prepareThunder().catch(() => {});
+
+function playHit(buffer, rate, cutoff, volume) {
+  const { context, input } = audio;
+  const source = context.createBufferSource();
+  const tone = context.createBiquadFilter();
+  const gain = context.createGain();
+  source.buffer = buffer;
+  source.playbackRate.value = rate;
+  tone.type = "lowpass";
+  tone.frequency.value = cutoff;
+  gain.gain.value = volume;
+  source.connect(tone).connect(gain).connect(input);
+  hits.add(source);
+  source.onended = () => {
+    hits.delete(source);
+    source.disconnect();
+    tone.disconnect();
+    gain.disconnect();
+  };
+  source.start();
+}
+
+async function start(id, point) {
+  if (gesture) return;
+  const active = { id, point, kind: mode, generation: stopGeneration };
+  gesture = active;
+  pad.classList.add("active");
+  move(point);
+  try {
+    if (audio?.context.state !== "running") await unlock();
+    if (active.generation !== stopGeneration || document.hidden) return;
+    if (active.kind === "siren" && gesture !== active) return;
+    byId("status").hidden = true;
+    if (active.kind === "thunder") {
+      const buffer = thunderBuffer ?? await prepareThunder();
+      if (active.generation !== stopGeneration || document.hidden || mode !== "thunder") return;
+      playHit(buffer, 1.14 - active.point.y * 0.29, 3200 + active.point.x * 7200, 2.15);
+    } else if (active.kind === "horn") {
+      await fireHorn(active.point, active.generation);
+    } else {
+      voice = makeSiren(active.point);
+    }
+  } catch {
+    if (active.generation !== stopGeneration || document.hidden) return;
+    if (gesture === active) release();
+    byId("status").textContent = "音声を開始できませんでした。通信を確認して、もう一度FIREを押してください。";
+    byId("status").hidden = false;
+  }
+}
+
+function release() {
+  gesture = undefined;
+  pad.classList.remove("active");
+  if (!voice) return;
+  const { osc, lfo, depth, envelope } = voice;
+  voice = undefined;
+  const now = audio.context.currentTime;
+  envelope.gain.cancelScheduledValues(now);
+  envelope.gain.setTargetAtTime(0, now, 0.018);
+  osc.onended = () => {
+    osc.disconnect();
+    lfo.disconnect();
+    depth.disconnect();
+    envelope.disconnect();
+  };
+  osc.stop(now + 0.13);
+  lfo.stop(now + 0.13);
+}
+
+function clearEcho() {
+  stopGeneration++;
+  release();
+  if (!audio) return;
+  for (const hit of hits) hit.stop();
+  hits.clear();
+  const { delay, tone, feedback, wet } = audio.echo;
+  adjust(wet.gain, 0, 0.005);
+  const oldInput = audio.input;
+  oldInput.disconnect(delay);
+  feedback.disconnect();
+  audio.input = audio.context.createGain();
+  audio.input.connect(audio.limiter);
+  setTimeout(() => oldInput.disconnect(), 150);
+  setTimeout(() => {
+    delay.disconnect();
+    tone.disconnect();
+    wet.disconnect();
+  }, 40);
+  makeEcho();
+}
+
+pad.addEventListener("pointerdown", event => {
+  if (event.button !== 0 || gesture) return;
+  pad.setPointerCapture(event.pointerId);
+  start(event.pointerId, position(event));
+});
+pad.addEventListener("pointermove", event => {
+  if (gesture?.id !== event.pointerId) return;
+  gesture.point = position(event);
+  move(gesture.point);
+});
+for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+  pad.addEventListener(type, event => {
+    if (gesture?.id === event.pointerId) release();
+  });
+}
+pad.addEventListener("contextmenu", event => event.preventDefault());
+let tapTimer;
+pad.addEventListener("click", event => {
+  if (event.detail !== 0 || gesture || Date.now() - lastKey < 350) return;
+  start("tap", { x: 0.42, y: 0.47 });
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(() => { if (gesture?.id === "tap") release(); }, 330);
+});
+let lastKey = 0;
+window.addEventListener("keydown", event => {
+  if (event.code === "Escape") clearEcho();
+  if (event.code !== "Space" || (event.target !== pad && event.target.closest("button,input"))) return;
+  event.preventDefault();
+  if (event.repeat) return;
+  lastKey = Date.now();
+  start("space", { x: 0.42, y: 0.47 });
+});
+window.addEventListener("keyup", event => {
+  if (event.code !== "Space" || gesture?.id !== "space") return;
+  event.preventDefault();
+  lastKey = Date.now();
+  release();
+});
+window.addEventListener("blur", release);
+document.addEventListener("visibilitychange", () => { if (document.hidden) release(); });
+byId("kill").addEventListener("click", clearEcho);
+
+for (const button of document.querySelectorAll("[data-wave]")) {
+  button.addEventListener("click", () => {
+    wave = button.dataset.wave;
+    for (const item of document.querySelectorAll("[data-wave]")) item.setAttribute("aria-pressed", String(item === button));
+    if (!voice) return;
+    voice.osc.type = wave;
+    adjust(voice.envelope.gain, wave === "square" ? 0.36 : 0.46);
+  });
+}
+
+const modes = {
+  siren: ["MODULATION ↔", "押して鳴らす", "上下で音程、左右で揺れの速さ。離すと残響が続きます。"],
+  horn: ["TONE ↔", "タップでホーンを鳴らす", "タップした位置で音程と音色が変わります。短く連打できます。"],
+  thunder: ["CRACK ↔", "スプリングを打つ", "タップでスプリングの破裂音。上下で音の深さ、左右で鋭さが変わります。"]
+};
+const modeButtons = document.querySelectorAll("[data-mode]");
+for (const button of modeButtons) {
+  button.addEventListener("click", () => {
+    if (mode === button.dataset.mode) return;
+    release();
+    mode = button.dataset.mode;
+    if (mode === "thunder") unlock().catch(() => {});
+    for (const item of modeButtons) item.setAttribute("aria-pressed", String(item === button));
+    const [axis, note, hint] = modes[mode];
+    byId("axis-x").textContent = axis;
+    byId("axis-y").textContent = mode === "thunder" ? "↕ RUMBLE" : "↕ PITCH";
+    byId("pad-note").textContent = note;
+    byId("hint").textContent = hint + " PCは Space でも演奏できます。";
+  });
+}
+
+const parameters = {
+  depth: () => { if (voice) adjust(voice.depth.gain, level("depth") * 1150); },
+  time: () => adjust(audio.echo.delay.delayTime, Number(knobs.time.value) / 1000, 0.045),
+  feedback: () => adjust(audio.echo.feedback.gain, level("feedback")),
+  echo: () => adjust(audio.echo.wet.gain, level("echo") * 0.72),
+  volume: () => adjust(audio.volume.gain, level("volume") * 0.68)
+};
+for (const [id, knob] of Object.entries(knobs)) {
+  knob.addEventListener("input", () => {
+    byId(id + "-out").value = knob.value + (id === "time" ? " ms" : "%");
+    if (audio) parameters[id]();
+  });
+}
+
+function clock(seconds) {
+  const total = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+}
+
+const trackFile = byId("track-file");
+const trackPlay = byId("track-play");
+const trackName = byId("track-name");
+const trackSeek = byId("track-seek");
+let musicUrl;
+
+function updateTransport() {
+  const canSeek = Number.isFinite(music.duration) && music.duration > 0;
+  trackSeek.disabled = !canSeek;
+  trackSeek.max = canSeek ? music.duration : 1;
+  trackSeek.value = canSeek ? music.currentTime : 0;
+  byId("track-time").value = clock(music.currentTime) + " / " + clock(music.duration);
+  trackPlay.textContent = music.paused ? "▶ 再生" : "Ⅱ 一時停止";
+}
+
+trackFile.addEventListener("change", () => {
+  const file = trackFile.files[0];
+  if (!file) return;
+  music.pause();
+  const previousUrl = musicUrl;
+  musicUrl = URL.createObjectURL(file);
+  music.src = musicUrl;
+  music.load();
+  if (previousUrl) URL.revokeObjectURL(previousUrl);
+  trackName.textContent = "音声ファイルを読み込んでいます。";
+  trackPlay.disabled = false;
+  updateTransport();
+});
+
+trackPlay.addEventListener("click", async () => {
+  if (!music.paused) {
+    music.pause();
+    return;
+  }
+  const selected = musicUrl;
+  try {
+    await Promise.all([unlock(), music.play()]);
+  } catch {
+    if (musicUrl !== selected) return;
+    music.pause();
+    trackName.textContent = "再生できませんでした。別の音声ファイルをお試しください。";
+  }
+});
+for (const type of ["loadedmetadata", "timeupdate", "play", "pause", "ended"]) {
+  music.addEventListener(type, updateTransport);
+}
+music.addEventListener("loadedmetadata", () => {
+  trackName.textContent = "読み込み完了。再生できます。";
+});
+music.addEventListener("error", () => {
+  trackPlay.disabled = true;
+  trackName.textContent = "読み込めませんでした。端末に保存したMP3やWAVを選んでください。";
+  updateTransport();
+});
+trackSeek.addEventListener("input", () => {
+  if (!trackSeek.disabled) music.currentTime = Number(trackSeek.value);
+  updateTransport();
+});
+byId("track-volume").addEventListener("input", event => {
+  byId("track-volume-out").value = event.target.value + "%";
+  if (audio) adjust(audio.trackGain.gain, Number(event.target.value) / 100);
+});
+
+const record = byId("record");
+const recordTime = byId("record-time");
+const recordStatus = byId("record-status");
+const take = byId("take");
+const takeAudio = byId("take-audio");
+const takeSave = byId("take-save");
+let recording;
+let takeUrl;
+const recordFormats = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"];
+const Recorder = window.MediaRecorder;
+if (!Recorder) {
+  record.disabled = true;
+  recordStatus.textContent = "このブラウザーでは録音できません。";
+}
+
+function finishRecording(current, failed = false) {
+  if (recording !== current) return;
+  recording = undefined;
+  clearInterval(current.timer);
+  audio.masterGain.disconnect(current.destination);
+  for (const track of current.destination.stream.getTracks()) track.stop();
+  record.disabled = false;
+  record.classList.remove("recording");
+  record.textContent = "● 録音開始";
+  if (!failed && current.chunks.length) {
+    const type = current.chunks[0].type || current.recorder.mimeType;
+    const extension = type.includes("mp4") ? "m4a" : type.includes("ogg") ? "ogg" : "webm";
+    const previousUrl = takeUrl;
+    takeUrl = URL.createObjectURL(new Blob(current.chunks, { type }));
+    takeAudio.src = takeUrl;
+    takeSave.href = takeUrl;
+    takeSave.download = "DUB-SIREN-" + new Date().toISOString().slice(0, 19).replace(/:/g, "-") + "." + extension;
+    if (previousUrl) URL.revokeObjectURL(previousUrl);
+    recordStatus.textContent = "録音完了";
+  } else {
+    recordStatus.textContent = "録音を保存できませんでした。";
+  }
+  take.hidden = !takeUrl;
+}
+
+record.addEventListener("click", async () => {
+  if (recording) {
+    record.disabled = true;
+    recordTime.value = clock((performance.now() - recording.started) / 1000);
+    recording.recorder.stop();
+    return;
+  }
+  record.disabled = true;
+  try {
+    await unlock();
+    const destination = audio.context.createMediaStreamDestination();
+    const mimeType = recordFormats.find(type => Recorder.isTypeSupported(type));
+    const recorder = new Recorder(destination.stream, mimeType ? { mimeType } : undefined);
+    const current = { recorder, destination, chunks: [], started: performance.now() };
+    recording = current;
+    audio.masterGain.connect(destination);
+    recorder.addEventListener("dataavailable", event => {
+      if (event.data.size) current.chunks.push(event.data);
+    });
+    recorder.addEventListener("stop", () => finishRecording(current));
+    recorder.addEventListener("error", () => finishRecording(current, true));
+    recorder.start(1000);
+    takeAudio.pause();
+    take.hidden = true;
+    recordTime.value = "0:00";
+    recordStatus.textContent = "録音中";
+    record.textContent = "■ 録音停止";
+    record.classList.add("recording");
+    current.timer = setInterval(() => { recordTime.value = clock((performance.now() - current.started) / 1000); }, 200);
+  } catch {
+    if (recording) finishRecording(recording, true);
+    else recordStatus.textContent = "録音を開始できませんでした。";
+  } finally {
+    record.disabled = false;
+  }
+});
+
+const canvas = byId("trace");
+const painter = canvas.getContext("2d");
+function draw() {
+  const ratio = window.devicePixelRatio || 1;
+  const width = Math.round(canvas.clientWidth * ratio);
+  const height = Math.round(canvas.clientHeight * ratio);
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  painter.clearRect(0, 0, width, height);
+  painter.strokeStyle = "#252720";
+  painter.lineWidth = ratio;
+  painter.beginPath();
+  for (let col = 1; col < 24; col++) {
+    painter.moveTo(width * col / 24, 0);
+    painter.lineTo(width * col / 24, height);
+  }
+  for (let row = 1; row < 6; row++) {
+    painter.moveTo(0, height * row / 6);
+    painter.lineTo(width, height * row / 6);
+  }
+  painter.stroke();
+
+  let peak = 0;
+  if (audio?.context.state === "running") audio.analyser.getFloatTimeDomainData(audio.samples);
+  else if (audio) audio.samples.fill(0);
+  painter.beginPath();
+  for (let i = 0; i < 240; i++) {
+    const sample = audio?.samples[Math.floor(i / 240 * audio.samples.length)] ?? 0;
+    const x = width * i / 239;
+    const y = height * (0.59 - Math.tanh(sample * 3.5) * 0.42);
+    peak = Math.max(peak, Math.abs(sample));
+    if (i === 0) painter.moveTo(x, y);
+    else painter.lineTo(x, y);
+  }
+  const lit = peak > 0.0015;
+  painter.strokeStyle = lit ? "#ff9268" : "#6b5243";
+  painter.lineWidth = 1.6 * ratio;
+  painter.stroke();
+  scope.classList.toggle("on", lit);
+  const state = voice || hits.size ? "LIVE" : lit ? music.paused ? "ECHO" : "MUSIC" : "STANDBY";
+  if (monitor.textContent !== state) monitor.textContent = state;
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
