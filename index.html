@@ -26,7 +26,9 @@ h1{font-size:clamp(40px,9vw,84px);line-height:.9;letter-spacing:-.065em;margin:0
 .release-tools{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .release-tools .kill{min-height:29px;padding:0 7px}
 .language-options{display:flex;gap:3px}
+.language-options .kill{letter-spacing:0}
 .language-options .kill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+@media(max-width:370px){h1{font-size:34px}}
 .scope{height:92px;border:1px solid var(--line);border-radius:5px;background:#10110f;position:relative;overflow:hidden;margin:0 0 13px}
 .scope canvas{width:100%;height:100%;display:block}
 .scope-head{position:absolute;inset:9px 11px auto;display:flex;justify-content:space-between;font:10px ui-monospace,monospace;letter-spacing:.11em;color:var(--muted);pointer-events:none}
@@ -96,10 +98,10 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
     <div class="release-tools">
       <button class="kill" id="install" type="button" data-i18n="install" hidden>インストール</button>
       <div class="language-options" role="group" aria-label="言語" data-i18n-label="language">
-        <button class="kill" type="button" data-language="ja" lang="ja" aria-pressed="true">日本語</button>
+        <button class="kill" type="button" data-language="ja" lang="en" aria-pressed="true">JAPANESE</button>
         <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
       </div>
-      <span class="version">V0.3.3</span>
+      <span class="version">V0.3.4</span>
     </div>
   </header>
   <div class="scope" id="scope">
