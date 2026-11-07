@@ -3,7 +3,7 @@
 A browser instrument for dub-style sound effects and live mix recording.  
 曲を流しながら、ダブサイレン、エアホーン、スプリングの破裂音を重ねて録音するブラウザー楽器です。
 
-[Play DUB SIREN v0.3.1](https://dub-siren.sunny-seed-0354.chatgpt.site/)
+[Play DUB SIREN v0.3.1](https://masato-nasu.github.io/DUB-SIREN/)
 
 ## Play
 
@@ -19,7 +19,7 @@ The app plays and mixes your selected file in the browser. The recording is gene
 
 Open the public app in your browser while online. In Chrome on Android, use **インストール** if it appears in the app, or use the browser menu to add the app to your home screen. On iPhone, open the app in Safari and use the Share menu to add it to the home screen.
 
-If a home-screen installation shows ERR_FAILED, open the [PWA recovery page](https://dub-siren.sunny-seed-0354.chatgpt.site/recover) online in the same browser and reopen the app after it updates.
+If a home-screen installation from the original ChatGPT Sites URL shows ERR_FAILED, open the [PWA recovery page](https://dub-siren.sunny-seed-0354.chatgpt.site/recover) online in the same browser and reopen the app after it updates.
 
 Once the app has finished its first online load, the app interface and its built-in sounds are available offline. Use audio files already on the device for backing tracks.
 
