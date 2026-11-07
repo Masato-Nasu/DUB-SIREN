@@ -25,6 +25,8 @@ h1{font-size:clamp(40px,9vw,84px);line-height:.9;letter-spacing:-.065em;margin:0
 .version{font-size:10px;color:var(--muted);white-space:nowrap}
 .release-tools{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .release-tools .kill{min-height:29px;padding:0 7px}
+.language-options{display:flex;gap:3px}
+.language-options .kill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 .scope{height:92px;border:1px solid var(--line);border-radius:5px;background:#10110f;position:relative;overflow:hidden;margin:0 0 13px}
 .scope canvas{width:100%;height:100%;display:block}
 .scope-head{position:absolute;inset:9px 11px auto;display:flex;justify-content:space-between;font:10px ui-monospace,monospace;letter-spacing:.11em;color:var(--muted);pointer-events:none}
@@ -66,9 +68,12 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
 .transport,.record-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .transport .kill,.record-row .kill{min-height:38px}
 .transport .kill:disabled,.record-row .kill:disabled{opacity:.5;cursor:default}
-.track-file{flex:1 1 150px;width:0;min-width:0;max-width:290px;min-height:38px;color:var(--muted);font-size:11px}
-.track-file::file-selector-button{min-height:38px;margin-right:9px;padding:0 11px;border:1px solid #5a5a4e;border-radius:3px;color:var(--paper);background:#181a17;font:inherit;cursor:pointer}
+.file-picker{position:relative;width:126px}
+.track-file{display:block;width:100%;min-height:38px;font-size:0;cursor:pointer}
+.track-file::file-selector-button{width:100%;min-height:38px;margin:0;border:1px solid #5a5a4e;border-radius:3px;color:transparent;background:#181a17;cursor:pointer}
 .track-file::file-selector-button:hover{border-color:var(--accent)}
+.file-caption{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;pointer-events:none}
+.track-filename{flex:1;min-width:42px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px}
 .track-name,.file-help{margin:6px 0 0;color:var(--muted);font-size:11px}
 .file-help summary{width:fit-content;cursor:pointer}
 .file-help p{margin:4px 0 0}
@@ -90,8 +95,11 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
     <div><p class="eyebrow">SOUND SYSTEM INSTRUMENT</p><h1>DUB SIREN</h1></div>
     <div class="release-tools">
       <button class="kill" id="install" type="button" data-i18n="install" hidden>インストール</button>
-      <button class="kill" id="language" type="button">EN</button>
-      <span class="version">V0.3.2</span>
+      <div class="language-options" role="group" aria-label="言語" data-i18n-label="language">
+        <button class="kill" type="button" data-language="ja" lang="ja" aria-pressed="true">日本語</button>
+        <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
+      </div>
+      <span class="version">V0.3.3</span>
     </div>
   </header>
   <div class="scope" id="scope">
@@ -114,7 +122,11 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
   <section class="module mixer" aria-labelledby="mixer-title">
     <h2 id="mixer-title"><span>01</span> MUSIC &amp; REC</h2>
     <div class="transport">
-      <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" data-i18n-label="chooseTrack" aria-describedby="track-name">
+      <div class="file-picker">
+        <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" data-i18n-label="chooseTrack" aria-describedby="track-name">
+        <span class="file-caption" aria-hidden="true" data-i18n="chooseTrack">曲を選ぶ</span>
+      </div>
+      <span class="track-filename" id="track-filename" data-i18n="noTrack">ファイル未選択</span>
       <button type="button" class="kill" id="track-play" data-i18n="play" disabled>▶ 再生</button>
     </div>
     <p class="track-name" id="track-name" data-i18n="trackInitial" role="status">端末に保存したMP3やWAVを選べます。</p>
@@ -540,6 +552,10 @@ function updateTransport() {
 trackFile.addEventListener("change", () => {
   const file = trackFile.files[0];
   if (!file) return;
+  const filename = byId("track-filename");
+  delete filename.dataset.i18n;
+  filename.textContent = file.name;
+  filename.title = file.name;
   music.pause();
   const previousUrl = musicUrl;
   musicUrl = URL.createObjectURL(file);
