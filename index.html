@@ -101,7 +101,7 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
         <button class="kill" type="button" data-language="ja" lang="en" aria-pressed="true">JAPANESE</button>
         <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
       </div>
-      <span class="version">V0.3.4</span>
+      <span class="version">V0.3.5</span>
     </div>
   </header>
   <div class="scope" id="scope">
@@ -212,6 +212,7 @@ const music = byId("track");
 const hits = new Set();
 const knobs = Object.fromEntries(["depth", "time", "feedback", "echo", "volume"].map(id => [id, byId(id)]));
 const level = id => Number(knobs[id].value) / 100;
+const sirenLevels = { sine: 0.59, triangle: 0.73, square: 0.36 };
 let audio;
 let gesture;
 let voice;
@@ -297,7 +298,7 @@ function makeSiren(point) {
   envelope.gain.value = 0;
   lfo.connect(depth).connect(osc.detune);
   osc.connect(envelope).connect(input);
-  adjust(envelope.gain, wave === "square" ? 0.36 : 0.46, 0.012);
+  adjust(envelope.gain, sirenLevels[wave], 0.012);
   lfo.start();
   osc.start();
   return { osc, lfo, depth, envelope };
@@ -484,7 +485,7 @@ for (const button of document.querySelectorAll("[data-wave]")) {
     for (const item of document.querySelectorAll("[data-wave]")) item.setAttribute("aria-pressed", String(item === button));
     if (!voice) return;
     voice.osc.type = wave;
-    adjust(voice.envelope.gain, wave === "square" ? 0.36 : 0.46);
+    adjust(voice.envelope.gain, sirenLevels[wave]);
   });
 }
 
