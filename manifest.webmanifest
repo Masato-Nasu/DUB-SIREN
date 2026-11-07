@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "DUB SIREN",
+  "short_name": "DUB SIREN",
+  "description": "ダブサイレン、エアホーン、スプリングの破裂音を曲に重ねて録音するブラウザー楽器。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161715",
+  "theme_color": "#161715",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

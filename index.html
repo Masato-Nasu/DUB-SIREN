@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#161715">
 <title>DUB SIREN</title>
 <meta name="description" content="指でピッチを操るダブサイレン。テープ風ディレイ付き。">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-180.png">
 <link rel="preload" href="./air-horn.wav" as="fetch" crossorigin>
 <style>
 :root{color-scheme:dark;--ink:#161715;--paper:#eae7da;--muted:#afad9e;--accent:#ff7b48;--line:#464741;--panel:#222420}
@@ -20,6 +23,8 @@ header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;
 .eyebrow{font-size:10px;color:var(--accent);margin:0 0 5px}
 h1{font-size:clamp(40px,9vw,84px);line-height:.9;letter-spacing:-.065em;margin:0;font-weight:800;white-space:nowrap}
 .version{font-size:10px;color:var(--muted);white-space:nowrap}
+.release-tools{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.release-tools .kill{min-height:29px;padding:0 7px}
 .scope{height:92px;border:1px solid var(--line);border-radius:5px;background:#10110f;position:relative;overflow:hidden;margin:0 0 13px}
 .scope canvas{width:100%;height:100%;display:block}
 .scope-head{position:absolute;inset:9px 11px auto;display:flex;justify-content:space-between;font:10px ui-monospace,monospace;letter-spacing:.11em;color:var(--muted);pointer-events:none}
@@ -83,7 +88,10 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
 <main>
   <header>
     <div><p class="eyebrow">SOUND SYSTEM INSTRUMENT</p><h1>DUB SIREN</h1></div>
-    <span class="version">V0.2.4</span>
+    <div class="release-tools">
+      <button class="kill" id="install" type="button" hidden>インストール</button>
+      <span class="version">V0.3.0</span>
+    </div>
   </header>
   <div class="scope" id="scope">
     <canvas id="trace" aria-hidden="true"></canvas>
@@ -152,6 +160,34 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
 <script>
 "use strict";
 const byId = id => document.getElementById(id);
+const install = byId("install");
+let installPrompt;
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  installPrompt = event;
+  install.hidden = false;
+});
+install.addEventListener("click", async () => {
+  const prompt = installPrompt;
+  if (!prompt) return;
+  installPrompt = undefined;
+  install.hidden = true;
+  try {
+    await prompt.prompt();
+  } catch (error) {
+    console.warn("DUB SIREN install prompt unavailable.", error);
+  }
+});
+window.addEventListener("appinstalled", () => {
+  installPrompt = undefined;
+  install.hidden = true;
+});
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).catch(error => {
+    console.warn("DUB SIREN offline setup unavailable.", error);
+  });
+}
+
 const pad = byId("pad");
 const scope = byId("scope");
 const monitor = byId("monitor");

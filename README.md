@@ -3,7 +3,7 @@
 A browser instrument for dub-style sound effects and live mix recording.  
 曲を流しながら、ダブサイレン、エアホーン、スプリングの破裂音を重ねて録音するブラウザー楽器です。
 
-[Play DUB SIREN v0.2.4](https://dub-siren.sunny-seed-0354.chatgpt.site/)
+[Play DUB SIREN v0.3.0](https://dub-siren.sunny-seed-0354.chatgpt.site/)
 
 ## Play
 
@@ -14,6 +14,12 @@ A browser instrument for dub-style sound effects and live mix recording.
 - **MUSIC & REC** — Select a local audio file, play it, and record the mix. Preview the take and save it in the format available in your browser.
 
 The app plays and mixes your selected file in the browser. The recording is generated locally and saved when you download it.
+
+## Install and play offline
+
+Open the public app in your browser while online. In Chrome on Android, use **インストール** if it appears in the app, or use the browser menu to add the app to your home screen. On iPhone, open the app in Safari and use the Share menu to add it to the home screen.
+
+Once the app has finished its first online load, the app interface and its built-in sounds are available offline. Use audio files already on the device for backing tracks.
 
 ## Run locally
 
