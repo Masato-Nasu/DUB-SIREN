@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#161715">
+<title>DUB SIREN 起動修復</title>
+<style>
+:root{color-scheme:dark;background:#161715;color:#eae7da;font-family:Helvetica,Arial,sans-serif}
+body{max-width:32rem;margin:12vh auto 0;padding:0 1.25rem}
+h1{margin-bottom:1.5rem;font-size:2rem;letter-spacing:-.05em}
+button,a{color:#ff7b48}
+button{font:inherit;background:transparent;border:1px solid currentColor;border-radius:4px;padding:.55rem .85rem}
+</style>
+<h1>DUB SIREN</h1>
+<p id="status" role="status">起動に必要なデータを更新しています。</p>
+<button id="retry" type="button" hidden>もう一度試す</button>
+<noscript><p>ブラウザーでJavaScriptを有効にしてください。</p></noscript>
+<script>
+const statusLabel = document.getElementById("status");
+const retry = document.getElementById("retry");
+
+function whenActivated(worker) {
+  if (!worker) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    function check() {
+      if (worker.state !== "activated" && worker.state !== "redundant") return;
+      worker.removeEventListener("statechange", check);
+      if (worker.state === "activated") resolve();
+      else reject(new Error("Update failed"));
+    }
+    worker.addEventListener("statechange", check);
+    check();
+  });
+}
+
+async function recover() {
+  retry.hidden = true;
+  statusLabel.textContent = "起動に必要なデータを更新しています。";
+  try {
+    const registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+    await registration.update();
+    await whenActivated(registration.installing ?? registration.waiting ?? registration.active);
+    location.replace("./");
+  } catch {
+    statusLabel.textContent = "更新できませんでした。接続を確認して、もう一度試してください。";
+    retry.hidden = false;
+  }
+}
+
+retry.addEventListener("click", recover);
+recover();
+</script>
+</html>

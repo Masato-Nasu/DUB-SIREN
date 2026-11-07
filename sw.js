@@ -1,11 +1,12 @@
 "use strict";
 
 const cachePrefix = "dub-siren:";
-const cacheName = cachePrefix + "v0.3.0";
+const cacheName = cachePrefix + "v0.3.1";
 const scope = new URL(self.registration.scope);
-const index = new URL("index.html", scope).href;
+const indexPath = new URL("index.html", scope).pathname;
+const appPage = scope.href;
 const assets = new Set([
-  "index.html",
+  "./",
   "manifest.webmanifest",
   "icon-180.png",
   "icon-192.png",
@@ -18,7 +19,8 @@ const assets = new Set([
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(cacheName);
-    await cache.addAll([...assets].map(url => new Request(url, { cache: "reload" })));
+    // The host redirects /index.html to /. Cache the final URL directly.
+    await cache.addAll([...assets].map(url => new Request(url, { cache: "reload", redirect: "error" })));
     await self.skipWaiting();
   })());
 });
@@ -38,11 +40,12 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   const isAppPage = url.origin === scope.origin &&
-    (url.pathname === scope.pathname || url.pathname === new URL(index).pathname);
-  const cachedUrl = request.mode === "navigate" && isAppPage ? index : url.href;
+    (url.pathname === scope.pathname || url.pathname === indexPath);
+  const cachedUrl = request.mode === "navigate" && isAppPage ? appPage : url.href;
   if (!assets.has(cachedUrl)) return;
   event.respondWith((async () => {
     const cache = await caches.open(cacheName);
-    return (await cache.match(cachedUrl)) ?? fetch(request);
+    const response = await cache.match(cachedUrl);
+    return response && !response.redirected ? response : fetch(request);
   })());
 });
