@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#161715">
 <title>DUB SIREN</title>
-<meta name="description" content="指でピッチを操るダブサイレン。テープ風ディレイ付き。">
+<meta name="description" content="A playable dub siren, air horn and spring thunder with tape-style delay and mix recording.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -89,15 +89,16 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
   <header>
     <div><p class="eyebrow">SOUND SYSTEM INSTRUMENT</p><h1>DUB SIREN</h1></div>
     <div class="release-tools">
-      <button class="kill" id="install" type="button" hidden>インストール</button>
-      <span class="version">V0.3.1</span>
+      <button class="kill" id="install" type="button" data-i18n="install" hidden>インストール</button>
+      <button class="kill" id="language" type="button">EN</button>
+      <span class="version">V0.3.2</span>
     </div>
   </header>
   <div class="scope" id="scope">
     <canvas id="trace" aria-hidden="true"></canvas>
     <div class="scope-head"><span>OUTPUT MONITOR</span><span><i id="lamp"></i><span id="monitor">STANDBY</span></span></div>
   </div>
-  <div class="modes" role="group" aria-label="効果音">
+  <div class="modes" role="group" aria-label="効果音" data-i18n-label="effects">
     <button type="button" class="wave" data-mode="siren" aria-pressed="true">SIREN</button>
     <button type="button" class="wave" data-mode="horn" aria-pressed="false">AIR HORN</button>
     <button type="button" class="wave" data-mode="thunder" aria-pressed="false">THUNDER</button>
@@ -105,7 +106,7 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
   <button class="pad" id="pad" type="button" aria-describedby="hint">
     <span class="axis axis-y" id="axis-y">↕ PITCH</span>
     <span class="pad-title">FIRE</span>
-    <span class="pad-note" id="pad-note">押して鳴らす</span>
+    <span class="pad-note" id="pad-note" data-i18n="sirenNote">押して鳴らす</span>
     <span class="axis axis-x" id="axis-x">MODULATION ↔</span>
     <span class="target" id="target" aria-hidden="true"></span>
   </button>
@@ -113,50 +114,51 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
   <section class="module mixer" aria-labelledby="mixer-title">
     <h2 id="mixer-title"><span>01</span> MUSIC &amp; REC</h2>
     <div class="transport">
-      <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" aria-describedby="track-name">
-      <button type="button" class="kill" id="track-play" disabled>▶ 再生</button>
+      <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" data-i18n-label="chooseTrack" aria-describedby="track-name">
+      <button type="button" class="kill" id="track-play" data-i18n="play" disabled>▶ 再生</button>
     </div>
-    <p class="track-name" id="track-name" role="status">端末に保存したMP3やWAVを選べます。</p>
-    <details class="file-help"><summary>ファイル選択が開かないとき</summary><p>ChatGPTアプリ内で開いている場合は、このページをChromeで開いて曲を選んでください。</p></details>
+    <p class="track-name" id="track-name" data-i18n="trackInitial" role="status">端末に保存したMP3やWAVを選べます。</p>
+    <details class="file-help"><summary data-i18n="fileHelp">ファイル選択が開かないとき</summary><p data-i18n="fileHelpText">ChatGPTアプリ内で開いている場合は、このページをChromeで開いて曲を選んでください。</p></details>
     <audio id="track" preload="metadata" hidden></audio>
     <div class="seek">
-      <input type="range" id="track-seek" min="0" max="1" step="0.1" value="0" aria-label="曲の再生位置" disabled>
+      <input type="range" id="track-seek" min="0" max="1" step="0.1" value="0" aria-label="曲の再生位置" data-i18n-label="seek" disabled>
       <output class="output" id="track-time">0:00 / 0:00</output>
     </div>
-    <label class="slider track-volume"><span class="label">曲の音量</span><input id="track-volume" type="range" min="0" max="100" value="67"><output class="output" for="track-volume" id="track-volume-out">67%</output></label>
+    <label class="slider track-volume"><span class="label" data-i18n="trackVolume">曲の音量</span><input id="track-volume" type="range" min="0" max="100" value="67"><output class="output" for="track-volume" id="track-volume-out">67%</output></label>
     <div class="record-row">
-      <button type="button" class="kill record-button" id="record">● 録音開始</button>
+      <button type="button" class="kill record-button" id="record" data-i18n="recordStart">● 録音開始</button>
       <output class="output" id="record-time">0:00</output>
-      <span class="status" id="record-status" role="status">曲と効果音をミックスして録音</span>
+      <span class="status" id="record-status" data-i18n="recordHint" role="status">曲と効果音をミックスして録音</span>
     </div>
     <div class="take" id="take" hidden>
-      <audio id="take-audio" controls preload="metadata" aria-label="録音の試聴"></audio>
-      <a class="kill" id="take-save">録音を保存</a>
+      <audio id="take-audio" controls preload="metadata" aria-label="録音の試聴" data-i18n-label="takePreview"></audio>
+      <a class="kill" id="take-save" data-i18n="takeSave">録音を保存</a>
     </div>
   </section>
-  <section class="controls" aria-label="音色とディレイ">
+  <section class="controls" aria-label="音色とディレイ" data-i18n-label="soundControls">
     <div class="module">
       <h2><span>02</span> OSCILLATOR</h2>
-      <div class="waves" role="group" aria-label="波形">
+      <div class="waves" role="group" aria-label="波形" data-i18n-label="waveforms">
         <button type="button" class="wave" data-wave="sine" aria-pressed="false">SINE</button>
         <button type="button" class="wave" data-wave="triangle" aria-pressed="false">TRIANGLE</button>
         <button type="button" class="wave" data-wave="square" aria-pressed="true">SQUARE</button>
       </div>
-      <label class="slider"><span class="label">揺れの深さ</span><input id="depth" type="range" min="0" max="100" value="53"><output class="output" for="depth" id="depth-out">53%</output></label>
+      <label class="slider"><span class="label" data-i18n="depth">揺れの深さ</span><input id="depth" type="range" min="0" max="100" value="53"><output class="output" for="depth" id="depth-out">53%</output></label>
     </div>
     <div class="module">
       <h2><span>03</span> TAPE DELAY</h2>
-      <label class="slider"><span class="label">間隔</span><input id="time" type="range" min="85" max="950" step="5" value="365"><output class="output" for="time" id="time-out">365 ms</output></label>
-      <label class="slider"><span class="label">繰り返し</span><input id="feedback" type="range" min="0" max="86" value="57"><output class="output" for="feedback" id="feedback-out">57%</output></label>
-      <label class="slider"><span class="label">ディレイ量</span><input id="echo" type="range" min="0" max="100" value="58"><output class="output" for="echo" id="echo-out">58%</output></label>
+      <label class="slider"><span class="label" data-i18n="time">間隔</span><input id="time" type="range" min="85" max="950" step="5" value="365"><output class="output" for="time" id="time-out">365 ms</output></label>
+      <label class="slider"><span class="label" data-i18n="feedback">繰り返し</span><input id="feedback" type="range" min="0" max="86" value="57"><output class="output" for="feedback" id="feedback-out">57%</output></label>
+      <label class="slider"><span class="label" data-i18n="echo">ディレイ量</span><input id="echo" type="range" min="0" max="100" value="58"><output class="output" for="echo" id="echo-out">58%</output></label>
     </div>
   </section>
   <footer>
-    <label class="slider"><span class="label">効果音量</span><input id="volume" type="range" min="0" max="100" value="42"><output class="output" for="volume" id="volume-out">42%</output></label>
-    <button class="kill" id="kill" type="button">■ 残響を止める</button>
+    <label class="slider"><span class="label" data-i18n="volume">効果音量</span><input id="volume" type="range" min="0" max="100" value="42"><output class="output" for="volume" id="volume-out">42%</output></label>
+    <button class="kill" id="kill" type="button" data-i18n="kill">■ 残響を止める</button>
   </footer>
   <p class="status" id="status" role="status" hidden></p>
 </main>
+<script src="./locale.js"></script>
 <script>
 "use strict";
 const byId = id => document.getElementById(id);
@@ -374,7 +376,7 @@ async function start(id, point) {
   } catch {
     if (active.generation !== stopGeneration || document.hidden) return;
     if (gesture === active) release();
-    byId("status").textContent = "音声を開始できませんでした。通信を確認して、もう一度FIREを押してください。";
+    dubLocale.set(byId("status"), "audioError", "音声を開始できませんでした。通信を確認して、もう一度FIREを押してください。");
     byId("status").hidden = false;
   }
 }
@@ -477,6 +479,17 @@ const modes = {
   horn: ["TONE ↔", "タップでホーンを鳴らす", "タップした位置で音程と音色が変わります。短く連打できます。"],
   thunder: ["CRACK ↔", "スプリングを打つ", "タップでスプリングの破裂音。上下で音の深さ、左右で鋭さが変わります。"]
 };
+function updatePadCopy() {
+  const [axis, note, hint] = modes[mode];
+  byId("axis-x").textContent = axis;
+  byId("axis-y").textContent = mode === "thunder" ? "↕ RUMBLE" : "↕ PITCH";
+  dubLocale.set(byId("pad-note"), mode + "Note", note);
+  byId("hint").textContent = dubLocale.text(mode + "Hint", hint) + " " +
+    dubLocale.text("keyboard", "PCは Space でも演奏できます。");
+}
+updatePadCopy();
+document.addEventListener("dub-language-change", updatePadCopy);
+
 const modeButtons = document.querySelectorAll("[data-mode]");
 for (const button of modeButtons) {
   button.addEventListener("click", () => {
@@ -485,11 +498,7 @@ for (const button of modeButtons) {
     mode = button.dataset.mode;
     if (mode === "thunder") unlock().catch(() => {});
     for (const item of modeButtons) item.setAttribute("aria-pressed", String(item === button));
-    const [axis, note, hint] = modes[mode];
-    byId("axis-x").textContent = axis;
-    byId("axis-y").textContent = mode === "thunder" ? "↕ RUMBLE" : "↕ PITCH";
-    byId("pad-note").textContent = note;
-    byId("hint").textContent = hint + " PCは Space でも演奏できます。";
+    updatePadCopy();
   });
 }
 
@@ -524,7 +533,8 @@ function updateTransport() {
   trackSeek.max = canSeek ? music.duration : 1;
   trackSeek.value = canSeek ? music.currentTime : 0;
   byId("track-time").value = clock(music.currentTime) + " / " + clock(music.duration);
-  trackPlay.textContent = music.paused ? "▶ 再生" : "Ⅱ 一時停止";
+  if (music.paused) dubLocale.set(trackPlay, "play", "▶ 再生");
+  else dubLocale.set(trackPlay, "pause", "Ⅱ 一時停止");
 }
 
 trackFile.addEventListener("change", () => {
@@ -536,7 +546,7 @@ trackFile.addEventListener("change", () => {
   music.src = musicUrl;
   music.load();
   if (previousUrl) URL.revokeObjectURL(previousUrl);
-  trackName.textContent = "音声ファイルを読み込んでいます。";
+  dubLocale.set(trackName, "trackLoading", "音声ファイルを読み込んでいます。");
   trackPlay.disabled = false;
   updateTransport();
 });
@@ -552,18 +562,18 @@ trackPlay.addEventListener("click", async () => {
   } catch {
     if (musicUrl !== selected) return;
     music.pause();
-    trackName.textContent = "再生できませんでした。別の音声ファイルをお試しください。";
+    dubLocale.set(trackName, "trackPlayError", "再生できませんでした。別の音声ファイルをお試しください。");
   }
 });
 for (const type of ["loadedmetadata", "timeupdate", "play", "pause", "ended"]) {
   music.addEventListener(type, updateTransport);
 }
 music.addEventListener("loadedmetadata", () => {
-  trackName.textContent = "読み込み完了。再生できます。";
+  dubLocale.set(trackName, "trackReady", "読み込み完了。再生できます。");
 });
 music.addEventListener("error", () => {
   trackPlay.disabled = true;
-  trackName.textContent = "読み込めませんでした。端末に保存したMP3やWAVを選んでください。";
+  dubLocale.set(trackName, "trackReadError", "読み込めませんでした。端末に保存したMP3やWAVを選んでください。");
   updateTransport();
 });
 trackSeek.addEventListener("input", () => {
@@ -587,7 +597,7 @@ const recordFormats = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "aud
 const Recorder = window.MediaRecorder;
 if (!Recorder) {
   record.disabled = true;
-  recordStatus.textContent = "このブラウザーでは録音できません。";
+  dubLocale.set(recordStatus, "recordUnavailable", "このブラウザーでは録音できません。");
 }
 
 function finishRecording(current, failed = false) {
@@ -598,7 +608,7 @@ function finishRecording(current, failed = false) {
   for (const track of current.destination.stream.getTracks()) track.stop();
   record.disabled = false;
   record.classList.remove("recording");
-  record.textContent = "● 録音開始";
+  dubLocale.set(record, "recordStart", "● 録音開始");
   if (!failed && current.chunks.length) {
     const type = current.chunks[0].type || current.recorder.mimeType;
     const extension = type.includes("mp4") ? "m4a" : type.includes("ogg") ? "ogg" : "webm";
@@ -608,9 +618,9 @@ function finishRecording(current, failed = false) {
     takeSave.href = takeUrl;
     takeSave.download = "DUB-SIREN-" + new Date().toISOString().slice(0, 19).replace(/:/g, "-") + "." + extension;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
-    recordStatus.textContent = "録音完了";
+    dubLocale.set(recordStatus, "recordDone", "録音完了");
   } else {
-    recordStatus.textContent = "録音を保存できませんでした。";
+    dubLocale.set(recordStatus, "recordSaveError", "録音を保存できませんでした。");
   }
   take.hidden = !takeUrl;
 }
@@ -640,13 +650,13 @@ record.addEventListener("click", async () => {
     takeAudio.pause();
     take.hidden = true;
     recordTime.value = "0:00";
-    recordStatus.textContent = "録音中";
-    record.textContent = "■ 録音停止";
+    dubLocale.set(recordStatus, "recording", "録音中");
+    dubLocale.set(record, "recordStop", "■ 録音停止");
     record.classList.add("recording");
     current.timer = setInterval(() => { recordTime.value = clock((performance.now() - current.started) / 1000); }, 200);
   } catch {
     if (recording) finishRecording(recording, true);
-    else recordStatus.textContent = "録音を開始できませんでした。";
+    else dubLocale.set(recordStatus, "recordStartError", "録音を開始できませんでした。");
   } finally {
     record.disabled = false;
   }

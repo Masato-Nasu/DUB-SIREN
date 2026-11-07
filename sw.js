@@ -1,13 +1,14 @@
 "use strict";
 
 const cachePrefix = "dub-siren:";
-const cacheName = cachePrefix + "v0.3.1";
+const cacheName = cachePrefix + "v0.3.2";
 const scope = new URL(self.registration.scope);
 const indexPath = new URL("index.html", scope).pathname;
 const appPage = scope.href;
 const assets = new Set([
   "./",
   "manifest.webmanifest",
+  "locale.js",
   "icon-180.png",
   "icon-192.png",
   "icon-512.png",
