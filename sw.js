@@ -1,7 +1,7 @@
 "use strict";
 
 const cachePrefix = "dub-siren:";
-const cacheName = cachePrefix + "v0.3.7";
+const cacheName = cachePrefix + "v0.3.8";
 const scope = new URL(self.registration.scope);
 const indexPath = new URL("index.html", scope).pathname;
 const appPage = scope.href;

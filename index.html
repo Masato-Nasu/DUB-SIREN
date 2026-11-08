@@ -60,13 +60,13 @@ h1{font-size:clamp(40px,9vw,84px);line-height:.9;letter-spacing:-.065em;margin:0
 .label,.output{font-size:10px}
 .output{text-align:right;color:var(--accent);white-space:nowrap;letter-spacing:0}
 input[type="range"]{width:100%;height:30px;margin:0;accent-color:var(--accent);cursor:pointer}
-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px}
-footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 34px}
+.fx-output{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:13px}
+.fx-output .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 34px}
 .status{font-size:10px;color:var(--muted)}
 .modes{display:flex;gap:5px;margin-bottom:8px}
 .modes .wave{flex:0 1 118px;min-height:32px}
 .modes .wave[aria-pressed="true"]{background:#38251d;color:var(--accent);border-color:var(--accent)}
-.mixer{margin-bottom:12px}
+.mixer{margin-top:13px}
 .transport,.record-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .transport .kill,.record-row .kill{min-height:38px}
 .transport .kill:disabled,.record-row .kill:disabled{opacity:.5;cursor:default}
@@ -101,7 +101,7 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
         <button class="kill" type="button" data-language="ja" lang="en" aria-pressed="true">JAPANESE</button>
         <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
       </div>
-      <span class="version">V0.3.7</span>
+      <span class="version">V0.3.8</span>
     </div>
   </header>
   <div class="scope" id="scope">
@@ -121,8 +121,29 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
     <span class="target" id="target" aria-hidden="true"></span>
   </button>
   <p class="hint" id="hint">上下で音程、左右で揺れの速さ。離すと残響が続きます。PCは Space でも演奏できます。</p>
+  <section class="controls" aria-label="音色とディレイ" data-i18n-label="soundControls">
+    <div class="module">
+      <h2><span>01</span> OSCILLATOR</h2>
+      <div class="waves" role="group" aria-label="波形" data-i18n-label="waveforms">
+        <button type="button" class="wave" data-wave="sine" aria-pressed="false">SINE</button>
+        <button type="button" class="wave" data-wave="triangle" aria-pressed="false">TRIANGLE</button>
+        <button type="button" class="wave" data-wave="square" aria-pressed="true">SQUARE</button>
+      </div>
+      <label class="slider"><span class="label" data-i18n="depth">揺れの深さ</span><input id="depth" type="range" min="0" max="100" value="53"><output class="output" for="depth" id="depth-out">53%</output></label>
+    </div>
+    <div class="module">
+      <h2><span>02</span> TAPE DELAY</h2>
+      <label class="slider"><span class="label" data-i18n="time">間隔</span><input id="time" type="range" min="85" max="950" step="5" value="365"><output class="output" for="time" id="time-out">365 ms</output></label>
+      <label class="slider"><span class="label" data-i18n="feedback">繰り返し</span><input id="feedback" type="range" min="0" max="86" value="57"><output class="output" for="feedback" id="feedback-out">57%</output></label>
+      <label class="slider"><span class="label" data-i18n="echo">ディレイ量</span><input id="echo" type="range" min="0" max="100" value="58"><output class="output" for="echo" id="echo-out">58%</output></label>
+    </div>
+  </section>
+  <div class="fx-output">
+    <label class="slider"><span class="label" data-i18n="volume">効果音量</span><input id="volume" type="range" min="0" max="100" value="42"><output class="output" for="volume" id="volume-out">42%</output></label>
+    <button class="kill" id="kill" type="button" data-i18n="kill">■ 残響を止める</button>
+  </div>
   <section class="module mixer" aria-labelledby="mixer-title">
-    <h2 id="mixer-title"><span>01</span> MUSIC &amp; REC</h2>
+    <h2 id="mixer-title"><span>03</span> MUSIC &amp; REC</h2>
     <div class="transport">
       <div class="file-picker">
         <input class="track-file" id="track-file" type="file" aria-label="曲を選ぶ" data-i18n-label="chooseTrack" aria-describedby="track-name">
@@ -149,27 +170,6 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
       <a class="kill" id="take-save" data-i18n="takeSave">録音を保存</a>
     </div>
   </section>
-  <section class="controls" aria-label="音色とディレイ" data-i18n-label="soundControls">
-    <div class="module">
-      <h2><span>02</span> OSCILLATOR</h2>
-      <div class="waves" role="group" aria-label="波形" data-i18n-label="waveforms">
-        <button type="button" class="wave" data-wave="sine" aria-pressed="false">SINE</button>
-        <button type="button" class="wave" data-wave="triangle" aria-pressed="false">TRIANGLE</button>
-        <button type="button" class="wave" data-wave="square" aria-pressed="true">SQUARE</button>
-      </div>
-      <label class="slider"><span class="label" data-i18n="depth">揺れの深さ</span><input id="depth" type="range" min="0" max="100" value="53"><output class="output" for="depth" id="depth-out">53%</output></label>
-    </div>
-    <div class="module">
-      <h2><span>03</span> TAPE DELAY</h2>
-      <label class="slider"><span class="label" data-i18n="time">間隔</span><input id="time" type="range" min="85" max="950" step="5" value="365"><output class="output" for="time" id="time-out">365 ms</output></label>
-      <label class="slider"><span class="label" data-i18n="feedback">繰り返し</span><input id="feedback" type="range" min="0" max="86" value="57"><output class="output" for="feedback" id="feedback-out">57%</output></label>
-      <label class="slider"><span class="label" data-i18n="echo">ディレイ量</span><input id="echo" type="range" min="0" max="100" value="58"><output class="output" for="echo" id="echo-out">58%</output></label>
-    </div>
-  </section>
-  <footer>
-    <label class="slider"><span class="label" data-i18n="volume">効果音量</span><input id="volume" type="range" min="0" max="100" value="42"><output class="output" for="volume" id="volume-out">42%</output></label>
-    <button class="kill" id="kill" type="button" data-i18n="kill">■ 残響を止める</button>
-  </footer>
   <p class="status" id="status" role="status" hidden></p>
 </main>
 <script src="./locale.js"></script>
