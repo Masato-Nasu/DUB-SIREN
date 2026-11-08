@@ -101,7 +101,7 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
         <button class="kill" type="button" data-language="ja" lang="en" aria-pressed="true">JAPANESE</button>
         <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
       </div>
-      <span class="version">V0.3.6</span>
+      <span class="version">V0.3.7</span>
     </div>
   </header>
   <div class="scope" id="scope">
@@ -212,7 +212,7 @@ const music = byId("track");
 const hits = new Set();
 const knobs = Object.fromEntries(["depth", "time", "feedback", "echo", "volume"].map(id => [id, byId(id)]));
 const level = id => Number(knobs[id].value) / 100;
-const sirenLevels = { sine: 1.45, triangle: 1.95, square: 0.36 };
+const sirenLevels = { sine: 5.5, triangle: 1.95, square: 0.36 };
 let audio;
 let gesture;
 let voice;

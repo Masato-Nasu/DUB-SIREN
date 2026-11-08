@@ -3,7 +3,7 @@
 A browser instrument for dub-style sound effects and live mix recording.  
 曲を流しながら、ダブサイレン、エアホーン、スプリングの破裂音を重ねて録音するブラウザー楽器です。
 
-[Play DUB SIREN v0.3.6](https://masato-nasu.github.io/DUB-SIREN/)
+[Play DUB SIREN v0.3.7](https://masato-nasu.github.io/DUB-SIREN/)
 
 [Open in English](https://masato-nasu.github.io/DUB-SIREN/?lang=en) · [日本語で開く](https://masato-nasu.github.io/DUB-SIREN/?lang=ja)
 
