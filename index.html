@@ -101,7 +101,7 @@ footer .slider{width:min(54%,235px);grid-template-columns:50px minmax(32px,1fr) 
         <button class="kill" type="button" data-language="ja" lang="en" aria-pressed="true">JAPANESE</button>
         <button class="kill" type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
       </div>
-      <span class="version">V0.3.5</span>
+      <span class="version">V0.3.6</span>
     </div>
   </header>
   <div class="scope" id="scope">
@@ -212,7 +212,7 @@ const music = byId("track");
 const hits = new Set();
 const knobs = Object.fromEntries(["depth", "time", "feedback", "echo", "volume"].map(id => [id, byId(id)]));
 const level = id => Number(knobs[id].value) / 100;
-const sirenLevels = { sine: 0.59, triangle: 0.73, square: 0.36 };
+const sirenLevels = { sine: 1.45, triangle: 1.95, square: 0.36 };
 let audio;
 let gesture;
 let voice;
@@ -251,6 +251,8 @@ async function unlock() {
     const volume = context.createGain();
     const trackGain = context.createGain();
     const master = context.createDynamicsCompressor();
+    const headroom = context.createGain();
+    const peakGuard = context.createWaveShaper();
     const masterGain = context.createGain();
     const analyser = context.createAnalyser();
     analyser.fftSize = 1024;
@@ -260,10 +262,17 @@ async function unlock() {
     trackGain.gain.value = Number(byId("track-volume").value) / 100;
     master.threshold.value = -6;
     master.ratio.value = 8;
+    // Keep ordinary levels linear and round off peaks before playback and recording.
+    headroom.gain.value = 0.5;
+    peakGuard.curve = Float32Array.from({ length: 4097 }, (_, index) => {
+      const sample = 4 * index / 4096 - 2;
+      const magnitude = Math.abs(sample);
+      return magnitude <= 0.93 ? sample : Math.sign(sample) * (0.93 + 0.22 * Math.tanh((magnitude - 0.93) / 0.22));
+    });
     masterGain.gain.value = 0.85;
     input.connect(limiter).connect(volume).connect(master);
     context.createMediaElementSource(music).connect(trackGain).connect(master);
-    master.connect(masterGain).connect(analyser).connect(context.destination);
+    master.connect(headroom).connect(peakGuard).connect(masterGain).connect(analyser).connect(context.destination);
     audio = { context, input, limiter, volume, trackGain, masterGain, analyser, samples: new Float32Array(analyser.fftSize) };
     makeEcho();
   }
