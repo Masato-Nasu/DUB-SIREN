@@ -7,6 +7,8 @@ A browser instrument for dub-style sound effects and live mix recording.
 
 [Open in English](https://masato-nasu.github.io/DUB-SIREN/?lang=en) · [日本語で開く](https://masato-nasu.github.io/DUB-SIREN/?lang=ja)
 
+<img src="images/dub-siren-v0.3.8.jpg" width="420" alt="DUB SIREN v0.3.8 in English, showing the FIRE pad, oscillator and tape delay controls">
+
 ## Play
 
 - **SIREN** — Hold FIRE and slide vertically for pitch or horizontally for modulation speed. Space also triggers FIRE on a keyboard.
